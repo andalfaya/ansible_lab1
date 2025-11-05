@@ -37,16 +37,8 @@ WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!
    ```
 
 3. Comprobar que Nginx está accesible desde el host:
-   ```bash
-   docker exec -it web01 systemctl status nginx
-   ```
    - Navegador: [http://localhost:8080](http://localhost:8080)
    - O con `curl`:
      ```bash
      curl http://localhost:8080
      ```
-
-4. Verificar que MySQL está en ejecución dentro del contenedor:
-   ```bash
-   docker exec -it db01 service mysql status
-   ```
