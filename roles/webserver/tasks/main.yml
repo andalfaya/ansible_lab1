@@ -1,5 +1,12 @@
 # SPDX-License-Identifier: MIT-0
 ---
+- name: Instalar dependencias base
+  ansible.builtin.apt:
+    name:
+      - curl
+    state: present
+    update_cache: true
+
 - name: Instalar Nginx
   ansible.builtin.apt:
     name: nginx
