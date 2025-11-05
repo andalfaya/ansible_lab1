@@ -1,7 +1,8 @@
 services:
   web01:
-    image: ubuntu:24.04
+    image: jrei/systemd-ubuntu:24.04
     container_name: web01
+    privileged: true
     ports:
       - "8080:80"
     command: >
@@ -20,8 +21,9 @@ services:
         ipv4_address: 172.18.0.2
 
   db01:
-    image: ubuntu:24.04
+    image: jrei/systemd-ubuntu:24.04
     container_name: db01
+    privileged: true
     command: >
       bash -c "
         apt update &&
