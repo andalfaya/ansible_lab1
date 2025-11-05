@@ -1,13 +1,13 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT-0
 ---
 - name: Instalar Nginx
-  apt:
+  ansible.builtin.apt:
     name: nginx
     state: present
     update_cache: true
 
-- name: Iniciar Nginx manualmente
-  shell: |
-    service nginx start
-  args:
-    executable: /bin/bash
+- name: Asegurar que Nginx está en ejecución
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
