@@ -1,0 +1,27 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Instalar dependencias base
+  apt:
+    name:
+      - apt-utils
+      - gnupg
+    state: present
+    update_cache: true
+    
+- name: Instalar MariaDB
+  apt:
+    name: mariadb-server
+    state: present
+    update_cache: true
+
+- name: Iniciar MariaDB manualmente
+  shell: |
+    service mariadb start
+  args:
+    executable: /bin/bash
+
+- name: Asegurar que MariaDB está en ejecución
+  service:
+    name: mariadb
+    state: started
+    enabled: true

@@ -1,0 +1,20 @@
+name: Ansible Lint
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar dependencias
+        run: |
+          pip install ansible ansible-lint
+
+      - name: Ejecutar Ansible Lint
+        run: ansible-lint site.yml

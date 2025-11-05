@@ -1,0 +1,45 @@
+services:
+  web01:
+    image: ubuntu:24.04
+    container_name: web01
+    ports:
+      - "8080:80"
+    command: >
+      bash -c "
+        apt update &&
+        apt install -y openssh-server python3 &&
+        echo 'root:Ctag123' | chpasswd &&
+        sed -i 's/#\\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config &&
+        sed -i 's/#\\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config &&
+        mkdir -p /var/run/sshd &&
+        service ssh start &&
+        sleep infinity
+      "
+    networks:
+      ansible_net:
+        ipv4_address: 172.18.0.2
+
+  db01:
+    image: ubuntu:24.04
+    container_name: db01
+    command: >
+      bash -c "
+        apt update &&
+        apt install -y openssh-server python3 &&
+        echo 'root:Ctag123' | chpasswd &&
+        sed -i 's/#\\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config &&
+        sed -i 's/#\\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config &&
+        mkdir -p /var/run/sshd &&
+        service ssh start &&
+        sleep infinity
+      "
+    networks:
+      ansible_net:
+        ipv4_address: 172.18.0.3
+
+networks:
+  ansible_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
