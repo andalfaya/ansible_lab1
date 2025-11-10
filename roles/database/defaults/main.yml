@@ -1,3 +1,11 @@
 # SPDX-License-Identifier: MIT-0
 ---
-# defaults file for roles/database
+
+mysql_admin_user: ansible
+mysql_admin_password: ansible
+mysql_app_db: appdb
+mysql_app_user: appuser
+mysql_app_password: root
+mysql_host: "%"
+mysql_login_host: 127.0.0.1
+mysql_login_port: 3306
