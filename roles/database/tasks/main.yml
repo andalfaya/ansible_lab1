@@ -1,21 +1,75 @@
 # SPDX-License-Identifier: MIT-0
 ---
-- name: Instalar dependencias base
-  ansible.builtin.apt:
+
+- name: Install MySQL server and Python client
+  apt:
     name:
       - apt-utils
-      - gnupg
+      - mysql-server
+      - python3-pymysql
     state: present
     update_cache: true
 
-- name: Instalar MariaDB
-  ansible.builtin.apt:
-    name: mariadb-server
-    state: present
-    update_cache: true
+- name: Configure MySQL to listen on all interfaces
+  lineinfile:
+    path: /etc/mysql/mysql.conf.d/mysqld.cnf
+    regexp: '^bind-address'
+    line: 'bind-address = 0.0.0.0'
+    backup: yes
 
-- name: Asegurar que MariaDB está en ejecución
-  ansible.builtin.service:
-    name: mariadb
+- name: Start MySQL manually
+  shell: |
+    nohup mysqld_safe --skip-networking=0 >/dev/null 2>&1 &
+  args:
+    executable: /bin/bash
+
+- name: Wait for MySQL TCP port 3306
+  wait_for:
+    host: 127.0.0.1
+    port: 3306
+    delay: 5
+    timeout: 60
     state: started
-    enabled: true
+
+- name: Create admin user for Ansible
+  community.mysql.mysql_user:
+    name: ansible
+    password: ansible
+    host: "%"
+    priv: "*.*:ALL,GRANT"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    column_case_sensitive: false
+
+- name: Create admin user for Ansible
+  community.mysql.mysql_user:
+    name: "{{ mysql_admin_user }}"
+    password: "{{ mysql_admin_password }}"
+    host: "{{ mysql_host }}"
+    priv: "*.*:ALL,GRANT"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    column_case_sensitive: false
+
+- name: Create application database
+  community.mysql.mysql_db:
+    name: "{{ mysql_app_db }}"
+    state: present
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_password }}"
+    login_host: "{{ mysql_login_host }}"
+    login_port: "{{ mysql_login_port }}"
+
+- name: Create application user and grant privileges
+  community.mysql.mysql_user:
+    name: "{{ mysql_app_user }}"
+    password: "{{ mysql_app_password }}"
+    priv: "{{ mysql_app_db }}.*:ALL"
+    host: "{{ mysql_host }}"
+    state: present
+    login_user: "{{ mysql_admin_user }}"
+    login_password: "{{ mysql_admin_password }}"
+    login_host: "{{ mysql_login_host }}"
+    login_port: "{{ mysql_login_port }}"
+    column_case_sensitive: false
+    plugin: mysql_native_password

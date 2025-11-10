@@ -1,43 +1,58 @@
 services:
   web01:
-    image: jrei/systemd-ubuntu:24.04
+    image: ubuntu:24.04
     container_name: web01
     privileged: true
     ports:
-      - "8080:80"
+      - "2222:22" # SSH
+      - "8080:80" # NGINX
     command: >
       bash -c "
-        apt update &&
-        apt install -y openssh-server python3 &&
-        echo 'root:Ctag123' | chpasswd &&
-        sed -i 's/#\\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config &&
-        sed -i 's/#\\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config &&
-        mkdir -p /var/run/sshd &&
-        service ssh start &&
-        sleep infinity
+        apt-get update && \
+        apt-get install -y openssh-server && \
+        mkdir -p /var/run/sshd && \
+        echo 'root:Ctag123' | chpasswd && \
+        sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+        sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+        /usr/sbin/sshd -D
       "
     networks:
       ansible_net:
         ipv4_address: 172.18.0.2
 
   db01:
-    image: jrei/systemd-ubuntu:24.04
+    image: ubuntu:24.04
     container_name: db01
     privileged: true
+    ports:
+      - "2223:22" # SSH
+      - "3306:3306" # MySQL
     command: >
       bash -c "
-        apt update &&
-        apt install -y openssh-server python3 &&
-        echo 'root:Ctag123' | chpasswd &&
-        sed -i 's/#\\?PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config &&
-        sed -i 's/#\\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config &&
-        mkdir -p /var/run/sshd &&
-        service ssh start &&
-        sleep infinity
+        apt-get update && \
+        apt-get install -y openssh-server && \
+        mkdir -p /var/run/sshd && \
+        echo 'root:Ctag123' | chpasswd && \
+        sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+        sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
+        /usr/sbin/sshd -D
       "
     networks:
       ansible_net:
         ipv4_address: 172.18.0.3
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db01
+      PMA_USER: appuser
+      PMA_PASSWORD: root
+    networks:
+      ansible_net:
+        ipv4_address: 172.18.0.4
 
 networks:
   ansible_net:
